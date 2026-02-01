@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+
+# Environment & Secrets (CRITICAL)
+.env
+env/
+venv/
+instance/
+
+# Data & Excel
+*.xlsx
+*.csv
+data/
+!data/.gitkeep
+
+# IDE & Config
+.vscode/
+.idea/
+*.bat

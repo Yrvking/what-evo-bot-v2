@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Postventa - BIEVO25</title>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- TailwindCSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .modal {
+            transition: opacity 0.25s ease;
+        }
+
+        body.modal-active {
+            overflow-x: hidden;
+            overflow-y: hidden !important;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+
+        .glass-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+
+<body class="text-gray-800">
+
+    <!-- Header -->
+    <header class="glass-header fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-indigo-600 text-white p-2 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-900 tracking-tight">Postventa Dashboard</h1>
+                    <p class="text-xs text-gray-500">Gestión de Reclamos y Evolta</p>
+                </div>
+            </div>
+
+            <form action="/dashboard/update_db" method="post"
+                onsubmit="return confirm('¿Seguro quieres forzar la actualización de la DB ahora?')">
+                <button type="submit"
+                    class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition flex items-center shadow-lg hover:shadow-emerald-500/30">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Actualizar DB Stock
+                </button>
+            </form>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 pt-28 pb-12">
+
+        <!-- Stats Row -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <h3 class="text-gray-500 text-sm font-medium uppercase">Total Tickets</h3>
+                <p class="text-3xl font-bold text-gray-900 mt-2">{{ tickets|length }}</p>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <h3 class="text-gray-500 text-sm font-medium uppercase">Pendientes</h3>
+                <p class="text-3xl font-bold text-orange-600 mt-2">{{ tickets|length }}</p>
+                <!-- TODO: Filter by status -->
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <h3 class="text-gray-500 text-sm font-medium uppercase">Última Actualización</h3>
+                <p class="text-lg font-medium text-gray-700 mt-3 flex items-center">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 mr-2"></span>
+                    Hoy, 13:00 PM
+                </p>
+            </div>
+        </div>
+
+        <!-- Table Card -->
+        <div class="bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
+            <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                <h2 class="text-lg font-semibold text-gray-900">Tickets Recientes</h2>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm whitespace-nowrap">
+                    <thead
+                        class="bg-gray-50 text-gray-500 font-semibold uppercase tracking-wider text-xs border-b border-gray-100">
+                        <tr>
+                            <th class="px-6 py-4">ID / Fecha</th>
+                            <th class="px-6 py-4">Cliente</th>
+                            <th class="px-6 py-4">Status Cliente</th>
+                            <th class="px-6 py-4">Status Procore</th>
+                            <th class="px-6 py-4">Proyecto / Unidad</th>
+                            <th class="px-6 py-4">Categoría / Problema</th>
+                            <th class="px-6 py-4">Evidencia</th>
+                            <th class="px-6 py-4">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        {% for t in tickets %}
+                        <tr class="hover:bg-gray-50 transition">
+                            <td class="px-6 py-4">
+                                <span
+                                    class="block text-indigo-600 font-bold bg-indigo-50 px-2 py-1 rounded w-max mb-1">{{
+                                    t.id }}</span>
+                                <span class="text-gray-400 text-xs">{{ t.created_at }}</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="block font-medium text-gray-900">{{ t.nombre }}</span>
+                                <span class="block text-xs text-gray-500">{{ t.dni }}</span>
+                                <span class="block text-xs text-gray-500">{{ t.telefono }}</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                {% if t.tipo_cliente == 'REGISTRADO' %}
+                                <span
+                                    class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                                    Registrado
+                                </span>
+                                {% else %}
+                                <span
+                                    class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+                                    No Registrado
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4">
+                                {% set status_color = 'bg-gray-100 text-gray-800' %}
+                                {% if t.procore_status == 'LISTO' %}
+                                {% set status_color = 'bg-blue-100 text-blue-800' %}
+                                {% elif t.procore_status == 'SINCRONIZADO' %}
+                                {% set status_color = 'bg-green-100 text-green-800' %}
+                                {% endif %}
+                                <span
+                                    class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold {{ status_color }}">
+                                    {{ t.procore_status }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="block text-gray-900">{{ t.proyecto }}</span>
+                                <span class="block text-xs bg-gray-100 px-2 py-0.5 rounded w-max mt-1 text-gray-600">{{
+                                    t.unidad }}</span>
+                            </td>
+                            <td class="px-6 py-4 max-w-xs truncate">
+                                <span
+                                    class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800 mb-1">
+                                    {{ t.categoria }}
+                                </span>
+                                <p class="text-gray-600 custom-truncate" title="{{ t.desc }}">{{ t.desc[:50] }}...</p>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex -space-x-2 overflow-hidden">
+                                    {% for media in t.media %}
+                                    <a href="{{ media }}" target="_blank"
+                                        class="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-gray-200 bg-cover bg-center shadow-sm hover:z-10 relative transition-transform hover:scale-110"
+                                        style="background-image: url('{{ media.replace('.pdf', '.png') }}'); text-align:center; line-height:32px;">
+                                        {% if 'video' in media %}🎥{% elif 'pdf' in media %}📄{% else %}{% endif %}
+                                    </a>
+                                    {% else %}
+                                    <span class="text-gray-400 text-xs italic">Sin archivos</span>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <button onclick='openModal({{ t | tojson }})'
+                                    class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-1 px-3 rounded text-xs shadow-md transition transform hover:scale-105">
+                                    Revisar
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if not tickets %}
+            <div class="p-12 text-center text-gray-400">
+                <p>No hay tickets registrados aún.</p>
+            </div>
+            {% endif %}
+
+        </div>
+    </main>
+
+    <!-- MODAL DE REVISIÓN PROCORE -->
+    <div id="modalProcore"
+        class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-50 transition-opacity duration-300">
+        <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
+        <div
+            class="modal-container bg-white w-11/12 md:max-w-5xl mx-auto rounded shadow-lg z-50 overflow-y-auto max-h-[90vh] flex flex-col">
+            <!-- Header -->
+            <div class="modal-content py-4 text-left px-6">
+                <div class="flex justify-between items-center pb-3 border-b">
+                    <p class="text-2xl font-bold text-gray-800" id="modalTitle">Revisión de Ticket</p>
+                    <div class="modal-close cursor-pointer z-50" onclick="closeModal()">
+                        <i class="fas fa-times text-gray-500 hover:text-red-500 text-xl"></i>
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row gap-6 mt-4">
+                    <!-- Columna Izquierda: Detalles y Media -->
+                    <div class="w-full md:w-1/2 flex flex-col gap-4">
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <div class="mb-2">
+                                <p class="text-xs text-gray-500 uppercase font-bold">Cliente</p>
+                                <p class="text-gray-900 font-medium" id="modalCliente"></p>
+                                <p class="text-gray-600 text-sm" id="modalDniPhone"></p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500 uppercase font-bold">Descripción del Reclamo</p>
+                                <div class="bg-white p-3 rounded text-sm text-gray-700 h-24 overflow-y-auto border border-gray-200 mt-1"
+                                    id="modalDesc"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="font-bold text-sm text-gray-700 mb-2 uppercase tracking-wide">Evidencias Adjuntas
+                            </h3>
+                            <div id="modalMediaContainer"
+                                class="bg-gray-100 p-4 rounded-lg min-h-[150px] flex flex-wrap gap-2 justify-center items-center border border-dashed border-gray-300">
+                                <p class="text-gray-400 text-sm">Cargando...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Columna Derecha: Campos Procore -->
+                    <div class="w-full md:w-1/2 bg-indigo-50/50 p-6 rounded-lg border border-indigo-100">
+                        <h3 class="font-bold text-lg mb-4 text-indigo-900 border-b border-indigo-200 pb-2">Datos para
+                            Procore</h3>
+
+                        <!-- Especialidad -->
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-xs font-bold mb-1 uppercase">Especialidad *</label>
+                            <select id="inputEspecialidad"
+                                class="w-full border border-gray-300 rounded px-2 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="">-- Seleccione Especialidad --</option>
+                                {% for esp in especialidades %}
+                                <option value="{{ esp }}">{{ esp }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Tipo -->
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-xs font-bold mb-1 uppercase">Tipo *</label>
+                            <input type="text" id="inputTipo"
+                                class="w-full border border-gray-300 rounded px-2 py-2 text-sm bg-gray-100 text-gray-600 cursor-not-allowed"
+                                value="Garantía - Llamada de servicio" readonly>
+                        </div>
+
+                        <div class="flex gap-4 mb-4">
+                            <!-- Prioridad -->
+                            <div class="w-1/2">
+                                <label class="block text-gray-700 text-xs font-bold mb-1 uppercase">Prioridad *</label>
+                                <select id="inputPrioridad"
+                                    class="w-full border border-gray-300 rounded px-2 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <option value="Baja">Baja</option>
+                                    <option value="Media">Media</option>
+                                    <option value="Alta">Alta</option>
+                                    <option value="Urgente">Urgente</option>
+                                    <option value="Crítica">Crítica</option>
+                                </select>
+                            </div>
+                            <!-- Asignado -->
+                            <div class="w-1/2">
+                                <label class="block text-gray-700 text-xs font-bold mb-1 uppercase">Asignado a *</label>
+                                <input type="text" id="inputAsignado"
+                                    class="w-full border border-gray-300 rounded px-2 py-2 text-sm bg-gray-100 text-gray-600 cursor-not-allowed"
+                                    value="Cesar Arrunategui Saavedra" readonly>
+                            </div>
+                        </div>
+
+                        <!-- Status Revision -->
+                        <div class="mb-6">
+                            <label class="block text-gray-700 text-xs font-bold mb-1 uppercase">Estado de
+                                Revisión</label>
+                            <div class="relative">
+                                <select id="inputStatus"
+                                    class="w-full border border-indigo-300 rounded px-3 py-2 text-sm bg-white font-bold text-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 appearance-none">
+                                    <option value="PENDIENTE">⏳ PENDIENTE DE REVISIÓN</option>
+                                    <option value="LISTO">✅ LISTO PARA ENVIAR A PROCORE</option>
+                                    <option value="SINCRONIZADO" disabled>☁️ SINCRONIZADO (Sistema)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="flex justify-end pt-2">
+                            <button onclick="saveProcoreData()"
+                                class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-lg text-sm transition shadow-lg w-full flex justify-center items-center gap-2">
+                                <span>Guardar Cambios</span>
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTicketId = null;
+
+        function openModal(ticket) {
+            currentTicketId = ticket.id;
+
+            document.getElementById('modalTitle').innerText = `Revisión: ${ticket.id}`;
+            document.getElementById('modalCliente').innerText = ticket.nombre;
+            document.getElementById('modalDniPhone').innerText = `${ticket.dni || 'S/DNI'} - ${ticket.telefono}`;
+            document.getElementById('modalDesc').innerText = ticket.desc;
+
+            document.getElementById('inputEspecialidad').value = ticket.procore_especialidad || '';
+            document.getElementById('inputStatus').value = ticket.procore_status || 'PENDIENTE';
+            document.getElementById('inputPrioridad').value = ticket.procore_prioridad || 'Urgente';
+
+            const mediaContainer = document.getElementById('modalMediaContainer');
+            mediaContainer.innerHTML = '';
+
+            if (ticket.media && ticket.media.length > 0) {
+                ticket.media.forEach(url => {
+                    if (url.includes('http')) {
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.target = '_blank';
+                        link.className = "group relative block w-32 h-32 overflow-hidden rounded-lg border border-gray-200 hover:shadow-xl transition transform hover:-translate-y-1 bg-white";
+
+                        if (url.match(/\.(jpeg|jpg|gif|png|webp)$/i) != null || url.includes('cloudinary')) {
+                            const img = document.createElement('img');
+                            img.src = url;
+                            img.className = "w-full h-full object-cover transition duration-300 group-hover:scale-110";
+                            link.appendChild(img);
+                        } else {
+                            link.className += " flex flex-col items-center justify-center bg-gray-50";
+                            link.innerHTML = '<span class="text-4xl mb-1">📄</span><span class="text-xs text-gray-500 text-center px-1">Ver Archivo</span>';
+                        }
+                        mediaContainer.appendChild(link);
+                    } else {
+                        const div = document.createElement('div');
+                        div.className = "w-32 h-32 flex flex-col items-center justify-center bg-red-50 border border-red-200 rounded-lg p-2 text-center";
+                        div.innerHTML = `<span class="text-xs text-red-600 font-bold mb-1">Error Subida</span><span class="text-[10px] text-gray-500 break-all leading-tight">${url.replace('[image:', '').replace(']', '')}</span>`;
+                        mediaContainer.appendChild(div);
+                    }
+                });
+            } else {
+                mediaContainer.innerHTML = '<div class="w-full flex flex-col items-center justify-center py-8 text-gray-400"><p class="italic mb-2">No hay archivos adjuntos</p></div>';
+            }
+
+            const modal = document.querySelector('#modalProcore');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            document.body.classList.add('modal-active');
+        }
+
+        function closeModal() {
+            const modal = document.querySelector('#modalProcore');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            document.body.classList.remove('modal-active');
+        }
+
+        async function saveProcoreData() {
+            const data = {
+                id: currentTicketId,
+                especialidad: document.getElementById('inputEspecialidad').value,
+                tipo: document.getElementById('inputTipo').value,
+                prioridad: document.getElementById('inputPrioridad').value,
+                asignado: document.getElementById('inputAsignado').value,
+                status: document.getElementById('inputStatus').value
+            };
+
+            const btn = document.querySelector('button[onclick="saveProcoreData()"]');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<span>Guardando...</span>';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/dashboard/update_procore', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    closeModal();
+                    setTimeout(() => location.reload(), 300);
+                } else {
+                    alert('Error guardando datos.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error de conexión.');
+            } finally {
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+            }
+        }
+
+        document.onkeydown = function (evt) {
+            if ((evt || window.event).keyCode == 27) closeModal();
+        };
+    </script>
+
+</body>
+
+</html>
