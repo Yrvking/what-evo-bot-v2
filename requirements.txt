@@ -8,3 +8,5 @@ cloudinary==1.38.0
 gunicorn==21.2.0
 schedule==1.2.1
 python-dotenv==1.0.0
+selenium
+webdriver-manager

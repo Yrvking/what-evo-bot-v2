@@ -9,7 +9,7 @@ venv/
 instance/
 
 # Data & Excel
-*.xlsx
+# *.xlsx (Comentado para subir CLIENTES_DB.xlsx a Render)
 *.csv
 data/
 !data/.gitkeep
