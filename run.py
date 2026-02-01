@@ -59,6 +59,21 @@ def webhook():
                 message_data = changes[0]["value"]["messages"][0]
                 phone_number = message_data["from"]
                 
+                # --- PROTECCIÓN CONTRA BUCLES (ECHO & SELF-REPLY) ---
+                metadata = changes[0]["value"].get("metadata", {})
+                my_number = metadata.get("display_phone_number", "").replace(" ", "").replace("-", "")
+                
+                # 1. Ignorar si soy yo mismo (evitar responder a mis propios mensajes)
+                if my_number and phone_number.endswith(my_number):
+                    print(f"🛑 Ignorando mensaje propio (Echo): {phone_number}")
+                    return jsonify({"status": "ignored_echo"}), 200
+
+                # 2. Ignorar mensajes antiguos (> 2 minutos) para evitar procesar cola vieja al reiniciar
+                msg_timestamp = int(message_data.get("timestamp", time.time()))
+                if time.time() - msg_timestamp > 120:
+                    print(f"⏳ Mensaje antiguo ignorado ({time.time() - msg_timestamp}s old)")
+                    return jsonify({"status": "ignored_old"}), 200
+                
                 # Gestión de tipos de mensaje
                 msg_type = message_data["type"]
                 text_body = ""
