@@ -6,7 +6,10 @@ import threading
 
 # --- CONFIGURACIÓN BASE DE DATOS ---
 # Usamos el string del Session Pooler (IPv4 Compatible) - CORREGIDO (aws-1)
-DB_URI = "postgresql://postgres.ljjccojunfiovkomesxv:Lu2dvWWPTKfKepIO@aws-1-sa-east-1.pooler.supabase.com:5432/postgres"
+# Usamos el string del Session Pooler (IPv4 Compatible) - CORREGIDO (aws-1)
+DB_URI = os.getenv("SUPABASE_URI")
+if not DB_URI:
+    print("❌ ERROR CRÍTICO: No se encontró SUPABASE_URI en las variables de entorno.")
 
 engine = create_engine(DB_URI, pool_size=10, max_overflow=20)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
