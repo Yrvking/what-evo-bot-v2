@@ -98,7 +98,22 @@ class DatabaseService:
                 else:
                     processed_urls.append(item)
 
-            ticket_id = f"TCK-{random.randint(10000, 99999)}"
+            # --- GENERACIÓN DE ID CONSECUTIVO ---
+            # 1. Buscamos el último ticket creado
+            last_ticket = session.query(Ticket).order_by(Ticket.created_at.desc()).first()
+            
+            new_id_number = 1
+            if last_ticket and last_ticket.id:
+                try:
+                    # Formato esperado: TCK-12345
+                    last_str = last_ticket.id.split("-")[1]
+                    new_id_number = int(last_str) + 1
+                except:
+                    # Si el ID anterior tenía formato raro, reseteamos o usamos random de fallback
+                    new_id_number = random.randint(10000, 99999)
+
+            # Formato simple: TCK-00001 (padding de 5 ceros)
+            ticket_id = f"TCK-{new_id_number:05d}"
             
             new_ticket = Ticket(
                 id=ticket_id,
