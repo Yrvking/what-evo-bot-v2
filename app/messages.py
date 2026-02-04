@@ -2,11 +2,11 @@
 # Puedes editar estos textos libremente.
 
 # Saludos
-MSG_WELCOME_KNOWN = "👋 Hola *{nombre}*, bienvenido a Postventa.\n¿En qué podemos ayudarte hoy?"
-MSG_WELCOME_UNKNOWN = "👋 Hola, bienvenido a Postventa.\nNo reconozco tu número en nuestra base de datos."
-MSG_ASK_DNI = "🔍 Por favor, escribe tu **DNI o Carnet de Extranjería** para buscarte."
-MSG_ASK_NAME = "⚠️ Tampoco encontré ese DNI. Por favor, escribe tu **Nombre y Apellido** completo."
-MSG_NOT_FOUND_FINAL = "📋 No hemos encontrado tus datos. Continuaremos como **Cliente No Registrado**.\nPor favor selecciona tu proyecto:"
+MSG_WELCOME_KNOWN = "👋 Hola, que tal*{nombre}*, bienvenido a nuestro sistema de Postventa.\n¿En qué podemos ayudarte hoy?"
+MSG_WELCOME_UNKNOWN = "👋 Hola, que tal bienvenido a nuestro sistema de Postventa.\nNo reconozco tu número celular en nuestra base de datos."
+MSG_ASK_DNI = "🔍 Por favor, escribe tu **DNI o Carnet de Extranjería** para buscarte en nuestra base de datos."
+MSG_ASK_NAME = "⚠️ Tampoco encontré ese Numero de documento. Por favor, escribe tu **Nombre y Apellido** completo."
+MSG_NOT_FOUND_FINAL = "📋 No hemos encontrado tus datos en nuestra base de datos, pero no te preocupes Continuaremos como **Cliente No Registrado**.\nPor favor selecciona el proyecto que vas a consultar:"
 
 # Menú Principal
 
@@ -29,7 +29,7 @@ MSG_ERROR_PROYECTO = "⚠️ Por favor selecciona un proyecto de la lista."
 MSG_ING_UNIDAD = "✅ Proyecto: *{proyecto}*\n\nPor favor escribe tu **Número de Departamento/Unidad** (Ej: 501, A-202)."
 
 # Categorías Detalladas
-MSG_SEL_CATEGORIA_TITLE = "Selecciona la categoría del problema:"
+MSG_SEL_CATEGORIA_TITLE = "Por favor selecciona una de las siguientes categorías de tu reclamo:"
 MSG_SEL_CATEGORIA_BTN = "Ver Categorías"
 CATEGORIAS = [
     {"id": "CAT_ACABADOS", "title": "1. Acabados Húmedos", "desc": "Pintura, Enchapes, Papel"},
@@ -42,7 +42,7 @@ CATEGORIAS = [
     {"id": "CAT_OTROS", "title": "8. Otros", "desc": "Otros problemas"}
 ]
 
-MSG_DESC_PROBLEMA = "📝 **Categoría: {categoria}**\n\nCuéntanos el detalle. Puedes enviar texto, fotos 📸 o videos 🎥.\nCuando termines, presiona el botón **Generar Ticket** 👇."
+MSG_DESC_PROBLEMA = "📝 **Categoría: {categoria}**\n\nPor favor, cuéntanos el detalle de tu reclamo. Puedes enviar texto, fotos 📸 o videos 🎥.\nCuando termines, presiona el botón **Generar Ticket** 👇."
 MSG_DESC_EMPTY = "⚠️ Necesitamos al menos una descripción o foto."
 
 BTN_FIN = "Generar Reclamo"

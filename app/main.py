@@ -76,7 +76,7 @@ async def process_message_flow(phone: str, text: str):
     if text_upper in ["HOLA", "INICIO", "MENU", "TEST"]:
         await wa_client.send_text(
             phone, 
-            "¡Hola! Bienvenido a Postventa Padova. 🏗️\nPara ubicar tu propiedad, por favor *escribe tu número de DNI o Carnet de Extranjería*."
+            "¡Hola! Bienvenido a Postventa Mirano/Padova. 🏗️\nPara ubicar tu propiedad, por favor *escribe tu número de DNI o Carnet de Extranjería*."
         )
         session_manager.set_session(phone, "ESPERANDO_DNI")
         return
